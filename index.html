@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        var gl; // глобальная переменная для контекста WebGL
+        var VSHADER_SOURCE =
+          'void main() {\n' +
+          ' gl_PointSize = 10.0;\n' +
+          ' gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n' +
+          ' }\n';
+
+        var FSHADER_SOURCE =
+          ' precision mediump float;\n' +
+          ' void main() {\n' +
+          ' gl_FragColor = vec4(1.0, 0.5, 0.0, 1.0);\n' +
+          ' }\n';
+
+
+        function getShader(gl, id, str) {
+          var shader;
+          if (id == 'vs') {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+          } else if (id == 'fs') {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+          } else {
+            return null;
+          }
+
+          gl.shaderSource(shader, str);
+          gl.compileShader(shader);
+
+          if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+          }
+          return shader;
+        }
+
+        function initShaders(gl){
+          var VS = getShader(gl, 'vs', VSHADER_SOURCE);
+          var FS = getShader(gl, 'fs', FSHADER_SOURCE);
+
+          shaderProgram = gl.createProgram();
+          gl.attachShader(shaderProgram, VS);
+          gl.attachShader(shaderProgram, FS);
+          gl.linkProgram(shaderProgram);
+          gl.useProgram(shaderProgram);
+        }
+
+        function start() {
+        var canvas = document.getElementById("glcanvas");
+
+        if(!canvas){
+            throw new Error;
+        }
+
+        canvas.width = 400;
+        canvas.height = 400;
+
+        try {
+          gl = canvas.getContext('webgl', {antialias: false});
+        } catch (e){
+          throw e;
+        }
+
+        initShaders(gl);
+
+
+        // gl = initWebGL(canvas); // инициализация контекста GL
+
+        // продолжать только если WebGL доступен и работает
+
+        if (gl) {
+            gl.clearColor(0.3, 0.5, 0.5, 1.0); // установить в качестве цвета очистки буфера цвета чёрный, полная непрозрачность
+            // gl.enable(gl.DEPTH_TEST); // включает использование буфера глубины
+            // gl.depthFunc(gl.LEQUAL); // определяет работу буфера глубины: более ближние объекты перекрывают дальние
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // очистить буфер цвета и буфер глубины.
+
+          gl.drawArrays(gl.POINTS, 0, 1);
+        }
+        }
+
+    </script>
+</head>
+<body onload="start()">
+    <canvas id="glcanvas" width="400" height="400" style="border: solid;">
+    </canvas>
+  </body>
+  
+</html>
